@@ -1,9 +1,10 @@
 # behavior-promise
-A Javascript lib to build complex applications easily, using behavior trees to organize code
+A powerful Javascript library to organize your code execution by using behavior trees
+Status: Under development, not for production yet
 
-## Installation
+## Installation (Node.js)
 ```bash
-$ npm install behavior-promise
+$ npm install --save behavior-promise
 ```
 ## Usage
 
