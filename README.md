@@ -14,6 +14,7 @@ Organize complex code execution in Javascript using [behavior trees](http://en.w
 - Local variables in nodes (instead of blackboard implementation)
 - Scales well in complex applications without losing control
 - Adapted to use functions from existing objects with almost zero cost
+- Trees may be loaded from objects, JSON files or YAML files
 
 ## Installation 
 In Node.js:
@@ -39,12 +40,15 @@ $ npm install --save behavior-promise
 - A **failure** node executes its only child and then it returns always Failure
 - When a node is executed, its output becomes the input of the next node to execute
 
+
 ## Examples
 
 A simple example:
 
 ```js
 var behavior = require('behavior-promise');
+
+// Prepare the tree
 var tree = behavior.create({
     root: {
     	seq: [
@@ -62,7 +66,7 @@ var tree = behavior.create({
 tree.run().done();
 ```
 
-A game AI attempts to enter a room:
+An example of a game AI attempting to enter a room:
 
 ```js
 var behavior = require('behavior-promise');
@@ -91,9 +95,10 @@ var tree = behavior.create({
         room: {
         	moveInto: function(){/*...*/},
         },
-            
     }
 });
+
+// Run the tree
 if (tree.error)
     console.log(tree.error);
 else 
@@ -170,3 +175,4 @@ If no type is given and there is no type specific property but there is a `nodes
 - Add more checks and errors
 - Accept functions as node properties
 - Implement more types and properties (random, parallel, repeat, repeatUntil, max)
+- Complete the incomplete scope functionality
