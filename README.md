@@ -21,22 +21,22 @@ In Node.js:
 $ npm install --save behavior-promise
 ```
 ## Definitions
-- A behavior tree runs conditionally a sequence of actions
-- A tree node may be of type: action, sequence, selector, inverter, success, failure
-- A node may have a scope with private variables, available to all its descentants
-- A node may be in one of the states: Running, finished with Success, finished with Failure
+- A behavior **tree** runs conditionally a sequence of actions
+- A tree **node** may be of type: action, sequence, selector, inverter, success, failure
+- A node may have a **scope** with private variables, available to all its descentants
+- A node may be in one of the **states**: Running, finished with Success, finished with Failure
 - A node may be either an action or a container that contains child nodes
-- An action may be a promise, a callback, a boolean function or a plain function
-- A promise action succeeds when it is fulfilled and fails when it is rejected
-- A callback function(err,res) succeeds when it returns res and fails when it returns err
-- A boolean function succeeds when it returns true and fails when it returns false
-- A plain function succeeds when it finishes without an exception and fails otherwise
-- An action node accepts an argument and returns a value
-- A sequence node executes its childs nodes until one fails
-- A selector node executes its child nodes until one succeeds
-- An inverter node executes its only child and then it reverses the success/failure outcome
-- A success node executes its only child and then it returns always Success
-- A failure node executes its only child and then it returns always Failure
+- An **action** may be a promise, a callback, a boolean function or a plain function
+- A **promise** succeeds when it is fulfilled and fails when it is rejected
+- A **callback** function(err,res) succeeds when it returns res and fails when it returns err
+- A **boolean** function succeeds when it returns true and fails when it returns false
+- A **plain** function succeeds when it finishes without an exception and fails otherwise
+- An action node accepts an **input argument** and returns an **output value**
+- A **sequence** node executes its childs nodes until one fails
+- A **selector** node executes its child nodes until one succeeds
+- An **inverter** node executes its only child and then it reverses the success/failure outcome
+- A **success** node executes its only child and then it returns always Success
+- A **failure** node executes its only child and then it returns always Failure
 - When a node is executed, its output becomes the input of the next node to execute
 
 ## Examples
