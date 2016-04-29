@@ -1,12 +1,12 @@
 # behavior-promise
 Organize complex code execution in Javascript using [behavior trees](http://en.wikipedia.org/wiki/Behavior_tree).
 
-- [Features](#Features)
-- [Installation](#Installation)
-- [Definitions](#Definitions)
-- [Examples](#Examples)
-- [API](#API)
-- [Todo](#Todo)
+- [Features](#features)
+- [Installation](#installation)
+- [Definitions](#definitions)
+- [Examples](#examples)
+- [API](#api)
+- [Todo](#todo)
 
 ## Features
 - Mix promises, callbacks and plain functions without conversion
