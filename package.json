@@ -1,0 +1,26 @@
+{
+  "name": "behavior-promise",
+  "version": "1.0.0",
+  "main": "test.js",
+  "scripts": {
+    "start": "node test.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "A Javascript lib to build complex applications easily, using behavior trees to organize code",
+  "dependencies": {
+    "js-yaml": "^3.6.0"
+  },
+  "directories": {
+    "example": "example"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tsalkakis-d/behavior-promise.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tsalkakis-d/behavior-promise/issues"
+  },
+  "homepage": "https://github.com/tsalkakis-d/behavior-promise#readme"
+}
