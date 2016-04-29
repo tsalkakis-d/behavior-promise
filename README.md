@@ -17,7 +17,7 @@ var tree = behavior.create({
     root: {
     	seq: [
 	        {action:'action1'},
-    	    {action:'action2}
+    	    {action:'action2'}
         ]
     },
     actions: {
@@ -39,7 +39,7 @@ var tree = behavior.create({
     	    {seq:[
             	'door.moveTo',
                 {sel:[
-                	{seq:['door.isLocked','door.unlock]},
+                	{seq:['door.isLocked','door.unlock']},
                     {seq:['door.kick','door.isOpen']}
                 ]},
                 'moveIntoRoom'
@@ -48,14 +48,14 @@ var tree = behavior.create({
     },
     actions: {
     	door: {
-        	isOpen: function(){/*...*/}},
-        	isLocked: function(){/*...*/}},
-            moveTo: function(){/*...*/}},
-            kick: function(){/*...*/}},
-            unlock: function(){/*...*/}},
+        	isOpen: function(){/*...*/},
+        	isLocked: function(){/*...*/},
+            moveTo: function(){/*...*/},
+            kick: function(){/*...*/},
+            unlock: function(){/*...*/},
         },
         room: {
-        	moveInto: function(){/*...*/}},
+        	moveInto: function(){/*...*/},
         },
             
     }
