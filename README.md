@@ -1,16 +1,47 @@
 # behavior-promise
-A powerful Javascript library to organize your code execution by using behavior trees
-Status: Under development, not for production yet
+Organize complex code execution in Javascript using [behavior trees](http://en.wikipedia.org/wiki/Behavior_tree).
 
-## Installation (Node.js)
+- [Features](#Features)
+- [Installation](#Installation)
+- [Definitions](#Definitions)
+- [Examples](#Examples)
+- [API](#API)
+- [Todo](#Todo)
+
+## Features
+- Mix promises, callbacks and plain functions without conversion
+- Dynamic order of actions execution
+- Local variables in nodes (instead of blackboard implementation)
+- Scales well in complex applications without losing control
+- Adapted to use functions from existing objects with almost zero cost
+
+## Installation 
+In Node.js:
 ```bash
 $ npm install --save behavior-promise
 ```
-## Usage
+## Definitions
+- A behavior tree runs conditionally a sequence of actions
+- A tree node may be of type: action, sequence, selector, inverter, success, failure
+- A node may have a scope with private variables, available to all its descentants
+- A node may be in one of the states: Running, finished with Success, finished with Failure
+- A node may be either an action or a container that contains child nodes
+- An action may be a promise, a callback, a boolean function or a plain function
+- A promise action succeeds when it is fulfilled and fails when it is rejected
+- A callback function(err,res) succeeds when it returns res and fails when it returns err
+- A boolean function succeeds when it returns true and fails when it returns false
+- A plain function succeeds when it finishes without an exception and fails otherwise
+- An action node accepts an argument and returns a value
+- A sequence node executes its childs nodes until one fails
+- A selector node executes its child nodes until one succeeds
+- An inverter node executes its only child and then it reverses the success/failure outcome
+- A success node executes its only child and then it returns always Success
+- A failure node executes its only child and then it returns always Failure
+- When a node is executed, its output becomes the input of the next node to execute
 
-With `behavior-promise` you can prepare and execute [behavior trees](http://en.wikipedia.org/wiki/Behavior_tree) in your application.
+## Examples
 
-Example _simpleApp.js_:
+A simple example:
 
 ```js
 var behavior = require('behavior-promise');
@@ -19,17 +50,19 @@ var tree = behavior.create({
     	seq: [
 	        {action:'action1'},
     	    {action:'action2'}
+    	    {action:'action3'}
         ]
     },
     actions: {
 		action1: function() {return 1},
         action2: function(x) {console.log(x)}
+        action3: function() {console.log('Done')}
     }
 });
 tree.run().done();
 ```
 
-Another example AIEnterRoom.js_:
+A game AI attempts to enter a room:
 
 ```js
 var behavior = require('behavior-promise');
@@ -72,7 +105,7 @@ else
 
 ## API
 ####Module
-> #####.create(Config)
+> #####.create(config)
 Initializes a tree and prepares it for execution.
 Returns a **Tree** object described below.
 If an error occurred during creation, then tree.error is set to a short string describing the error.
@@ -132,3 +165,8 @@ If no type is given and there is no type specific property but there is a `nodes
 - **success**
 - **failure**
 - **nodes**
+
+## Todo
+- Add more checks and errors
+- Accept functions as node properties
+- Implement more types and properties (random, parallel, repeat, repeatUntil, max)
