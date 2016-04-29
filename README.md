@@ -12,7 +12,7 @@ With `behavior-promise` you can prepare and execute [behavior trees](http://en.w
 Example _simpleApp.js_:
 
 ```js
-var behavior = require('behavior-promise);
+var behavior = require('behavior-promise');
 var tree = behavior.create({
     root: {
     	seq: [
@@ -31,7 +31,7 @@ tree.run().done();
 Another example AIEnterRoom.js_:
 
 ```js
-var behavior = require('behavior-promise);
+var behavior = require('behavior-promise');
 var tree = behavior.create({
     root: {
     	sel: [
