@@ -1,14 +1,14 @@
 {
   "name": "behavior-promise",
   "version": "1.0.0",
-  "main": "test.js",
+  "main": "lib/behavior.js",
   "scripts": {
     "start": "node test.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "<dimtsalk@gmail.com>",
   "license": "ISC",
-  "description": "A Javascript lib to build complex applications easily, using behavior trees to organize code",
+  "description": "Organize complex code execution inJavascript using behavior trees",
   "dependencies": {
     "js-yaml": "^3.6.0"
   },
