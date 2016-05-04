@@ -53,17 +53,17 @@ var tree = behavior.create({
     root: {
     	seq: [
 	        {action:'action1'},
-    	    {action:'action2'}
+    	    {action:'action2'},
     	    {action:'action3'}
         ]
     },
     actions: {
 		action1: function() {return 1},
-        action2: function(x) {console.log(x)}
+        action2: function(x) {console.log(x)},
         action3: function() {console.log('Done')}
     }
 });
-tree.run().done();
+tree.run();
 ```
 
 An example of a game AI attempting to enter a room:
@@ -73,14 +73,14 @@ var behavior = require('behavior-promise');
 var tree = behavior.create({
     root: {
     	sel: [
-	        {seq:['door.isOpen','moveIntoRoom']},
+	        {seq:['door.isOpen','room.moveInto']},
     	    {seq:[
             	'door.moveTo',
                 {sel:[
                 	{seq:['door.isLocked','door.unlock']},
                     {seq:['door.kick','door.isOpen']}
                 ]},
-                'moveIntoRoom'
+                'room.moveInto'
             ]}
         ]
     },
