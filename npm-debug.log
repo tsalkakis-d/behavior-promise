@@ -1,0 +1,104 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'C:\\Program Files\\nodejs\\node.exe',
+1 verbose cli   'C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js',
+1 verbose cli   'publish' ]
+2 info using npm@3.6.0
+3 info using node@v5.7.0
+4 verbose publish [ '.' ]
+5 silly cache add args [ '.', null ]
+6 verbose cache add spec .
+7 silly cache add parsed spec Result {
+7 silly cache add   raw: '.',
+7 silly cache add   scope: null,
+7 silly cache add   name: null,
+7 silly cache add   rawSpec: '.',
+7 silly cache add   spec: 'c:\\prj\\nodes\\libs\\behavior-promise',
+7 silly cache add   type: 'directory' }
+8 verbose addLocalDirectory C:\Users\sting\AppData\Roaming\npm-cache\behavior-promise\1.0.0\package.tgz not in flight; packing
+9 verbose correctMkdir C:\Users\sting\AppData\Roaming\npm-cache correctMkdir not in flight; initializing
+10 info lifecycle behavior-promise@1.0.0~prepublish: behavior-promise@1.0.0
+11 silly lifecycle behavior-promise@1.0.0~prepublish: no script for prepublish, continuing
+12 verbose tar pack [ 'C:\\Users\\sting\\AppData\\Roaming\\npm-cache\\behavior-promise\\1.0.0\\package.tgz',
+12 verbose tar pack   'c:\\prj\\nodes\\libs\\behavior-promise' ]
+13 verbose tarball C:\Users\sting\AppData\Roaming\npm-cache\behavior-promise\1.0.0\package.tgz
+14 verbose folder c:\prj\nodes\libs\behavior-promise
+15 verbose addLocalTarball adding from inside cache C:\Users\sting\AppData\Roaming\npm-cache\behavior-promise\1.0.0\package.tgz
+16 verbose correctMkdir C:\Users\sting\AppData\Roaming\npm-cache correctMkdir not in flight; initializing
+17 silly cache afterAdd behavior-promise@1.0.0
+18 verbose afterAdd C:\Users\sting\AppData\Roaming\npm-cache\behavior-promise\1.0.0\package\package.json not in flight; writing
+19 verbose correctMkdir C:\Users\sting\AppData\Roaming\npm-cache correctMkdir not in flight; initializing
+20 verbose afterAdd C:\Users\sting\AppData\Roaming\npm-cache\behavior-promise\1.0.0\package\package.json written
+21 silly publish { name: 'behavior-promise',
+21 silly publish   version: '1.0.0',
+21 silly publish   main: 'lib/behavior.js',
+21 silly publish   files: [ 'lib' ],
+21 silly publish   scripts:
+21 silly publish    { start: 'node test.js',
+21 silly publish      test: 'echo "Error: no test specified" && exit 1' },
+21 silly publish   author: { name: 'Dimitrios Tsalkakis' },
+21 silly publish   license: 'ISC',
+21 silly publish   description: 'Organize complex code execution inJavascript using behavior trees',
+21 silly publish   dependencies: { 'js-yaml': '^3.6.0' },
+21 silly publish   directories: { example: 'example' },
+21 silly publish   repository:
+21 silly publish    { type: 'git',
+21 silly publish      url: 'git+https://github.com/tsalkakis-d/behavior-promise.git' },
+21 silly publish   bugs: { url: 'https://github.com/tsalkakis-d/behavior-promise/issues' },
+21 silly publish   homepage: 'https://github.com/tsalkakis-d/behavior-promise#readme',
+21 silly publish   readme: '# behavior-promise\r\nOrganize complex code execution in Javascript using [behavior trees](http://en.wikipedia.org/wiki/Behavior_tree).\r\n\r\n- [Features](#features)\r\n- [Installation](#installation)\r\n- [Definitions](#definitions)\r\n- [Examples](#examples)\r\n- [API](#api)\r\n- [Todo](#todo)\r\n\r\n## Features\r\n- Mix promises, callbacks and plain functions without conversion\r\n- Dynamic order of actions execution\r\n- Local variables in nodes (instead of blackboard implementation)\r\n- Scales well in complex applications without losing control\r\n- Adapted to use functions from existing objects with almost zero cost\r\n- Trees may be loaded from objects, JSON files or YAML files\r\n\r\n## Installation \r\nIn Node.js:\r\n```bash\r\n$ npm install --save behavior-promise\r\n```\r\n## Definitions\r\n- A behavior **tree** runs conditionally a sequence of actions\r\n- A tree **node** may be of type: action, sequence, selector, inverter, success, failure\r\n- A node may have a **scope** with private variables, available to all its descentants\r\n- A node may be in one of the **states**: Running, finished with Success, finished with Failure\r\n- A node may be either an action or a container that contains child nodes\r\n- An **action** may be a promise, a callback, a boolean function or a plain function\r\n- A **promise** succeeds when it is fulfilled and fails when it is rejected\r\n- A **callback** function(err,res) succeeds when it returns res and fails when it returns err\r\n- A **boolean** function succeeds when it returns true and fails when it returns false\r\n- A **plain** function succeeds when it finishes without an exception and fails otherwise\r\n- An action node accepts an **input argument** and returns an **output value**\r\n- A **sequence** node executes its childs nodes until one fails\r\n- A **selector** node executes its child nodes until one succeeds\r\n- An **inverter** node executes its only child and then it reverses the success/failure outcome\r\n- A **success** node executes its only child and then it returns always Success\r\n- A **failure** node executes its only child and then it returns always Failure\r\n- When a node is executed, its output becomes the input of the next node to execute\r\n\r\n\r\n## Examples\r\n\r\nA simple example:\r\n\r\n```js\r\nvar behavior = require(\'behavior-promise\');\r\n\r\n// Prepare the tree\r\nvar tree = behavior.create({\r\n    root: {\r\n    \tseq: [\r\n\t        {action:\'action1\'},\r\n    \t    {action:\'action2\'}\r\n    \t    {action:\'action3\'}\r\n        ]\r\n    },\r\n    actions: {\r\n\t\taction1: function() {return 1},\r\n        action2: function(x) {console.log(x)}\r\n        action3: function() {console.log(\'Done\')}\r\n    }\r\n});\r\ntree.run().done();\r\n```\r\n\r\nAn example of a game AI attempting to enter a room:\r\n\r\n```js\r\nvar behavior = require(\'behavior-promise\');\r\nvar tree = behavior.create({\r\n    root: {\r\n    \tsel: [\r\n\t        {seq:[\'door.isOpen\',\'moveIntoRoom\']},\r\n    \t    {seq:[\r\n            \t\'door.moveTo\',\r\n                {sel:[\r\n                \t{seq:[\'door.isLocked\',\'door.unlock\']},\r\n                    {seq:[\'door.kick\',\'door.isOpen\']}\r\n                ]},\r\n                \'moveIntoRoom\'\r\n            ]}\r\n        ]\r\n    },\r\n    actions: {\r\n    \tdoor: {\r\n        \tisOpen: function(){/*...*/},\r\n        \tisLocked: function(){/*...*/},\r\n            moveTo: function(){/*...*/},\r\n            kick: function(){/*...*/},\r\n            unlock: function(){/*...*/},\r\n        },\r\n        room: {\r\n        \tmoveInto: function(){/*...*/},\r\n        },\r\n    }\r\n});\r\n\r\n// Run the tree\r\nif (tree.error)\r\n    console.log(tree.error);\r\nelse \r\n    tree.run().then(\r\n    \tfunction(){console.log(\'SUCCESS\')},\r\n        function(){console.log(\'FAILURE\')}\r\n    );\r\n```\r\n\r\n## API\r\n####Module\r\n> #####.create(config)\r\nInitializes a tree and prepares it for execution.\r\nReturns a **Tree** object described below.\r\nIf an error occurred during creation, then tree.error is set to a short string describing the error.\r\nconfig is a **Config** object described below.\r\n\r\n####Tree\r\n> #####.run(input) \r\nExecutes the tree\r\ninput is an optional single argument to pass to the tree\r\nrun() returns a **Promise**. \r\nIf tree execution ends with a success, the promise is fulfilled returning the success value\r\nIf tree execution ends with a failure, the promise is rejected returning the failure value\r\n####.error\r\nIf an error occured during tree creation, then this property is set to a short string describing the error\r\nIf no error occured, then this property is set to `null`\r\n\r\n####Config\r\n> Object with the following properties:\r\n- **root** (Required)\r\n\tThe root node of the tree, containing all nodes. May be an object or a string\r\n    Root parsing is performed according to the option rootFormat\r\n    The roor node is a **Node** object described below\r\n- **rootFormat** (Optional)\r\n\tDetermine the way to parse the given root, in order to build the tree.\r\n\tDefault value: If root is an object, default rootFormat is `\'object\'`. If root is a string, default rootFormat is `\'json\'`\r\n    rootFormat may be one of the following strings:\r\n    - **\'object\'**\r\n\t\tRoot is a tree object already. Do not parse it\r\n\t- **\'json\'**\r\n\t    Root is a JSON string. Parse it to get the tree object\r\n\t- **\'jsonfile\'**\r\n\t\tRoot is the filename of a JSON text file. Load and parse it to get the tree object\r\n\t- **\'yaml\'**\r\n\t\tRoot is a YAML text string. Parse it to get the tree object\r\n\t- **\'yamlfile\'**\r\n\t\tRoot is the filename of a YAML text file. Load and parse it to get the tree object\r\n- **actions** (Required) \r\n\tAn object containing all the available actions as properties\r\n    For each property:\r\n\t- Property key is the action path key (see run)\r\n\t- Property value is either a function (the action) or an object containing more properties\r\n\r\n####Node\r\n> Object with the following properties (all optional):\r\n- **type**\r\nA string indicating the node type.\r\nMay be one of: \'action\',\'seq\',\'sel\',\'invert\',\'success\',\'failure\'\r\nIf no type is given but node has also a type specific property (`action`,`seq`,`sel`,`inver`,`success`,`failure`), then node type is concluced from the property key.\r\nIf no type is given and there is no type specific property but there is a `nodes` property, then node type is `\'seq\'`.\r\n- **actionType**\r\n- **scope**\r\n- **title**\r\n- **action**\r\n- **seq**\r\n- **sel**\r\n- **invert**\r\n- **success**\r\n- **failure**\r\n- **nodes**\r\n\r\n## Todo\r\n- Add more checks and errors\r\n- Accept functions as node properties\r\n- Implement more types and properties (random, parallel, repeat, repeatUntil, max)\r\n- Complete the incomplete scope functionality\r\n',
+21 silly publish   readmeFilename: 'README.md',
+21 silly publish   gitHead: 'b0ae8cdc02205c5306b29ec19823146a053faf0f',
+21 silly publish   _id: 'behavior-promise@1.0.0',
+21 silly publish   _shasum: '079017109ba6a338086712e8ecb13a303a0c6719',
+21 silly publish   _from: '.' }
+22 verbose getPublishConfig undefined
+23 silly mapToRegistry name behavior-promise
+24 silly mapToRegistry using default registry
+25 silly mapToRegistry registry https://registry.npmjs.org/
+26 silly mapToRegistry uri https://registry.npmjs.org/behavior-promise
+27 verbose publish registryBase https://registry.npmjs.org/
+28 silly publish uploading C:\Users\sting\AppData\Roaming\npm-cache\behavior-promise\1.0.0\package.tgz
+29 verbose request uri https://registry.npmjs.org/behavior-promise
+30 verbose request sending authorization for write operation
+31 info attempt registry request try #1 at 01:46:35
+32 verbose request using bearer token for auth
+33 verbose request id f44c6ca11f64b61e
+34 http request PUT https://registry.npmjs.org/behavior-promise
+35 http 403 https://registry.npmjs.org/behavior-promise
+36 verbose headers { 'content-type': 'application/json',
+36 verbose headers   'cache-control': 'max-age=300',
+36 verbose headers   'content-length': '95',
+36 verbose headers   'accept-ranges': 'bytes',
+36 verbose headers   date: 'Wed, 04 May 2016 22:47:16 GMT',
+36 verbose headers   via: '1.1 varnish',
+36 verbose headers   connection: 'keep-alive',
+36 verbose headers   'x-served-by': 'cache-fra1238-FRA',
+36 verbose headers   'x-cache': 'MISS',
+36 verbose headers   'x-cache-hits': '0',
+36 verbose headers   'x-timer': 'S1462402025.661227,VS0,VE10535',
+36 verbose headers   vary: 'Accept-Encoding' }
+37 verbose request invalidating C:\Users\sting\AppData\Roaming\npm-cache\registry.npmjs.org\behavior-promise on PUT
+38 error publish Failed PUT 403
+39 verbose stack Error: "You cannot publish over the previously published version 1.0.0." : behavior-promise
+39 verbose stack     at makeError (C:\Program Files\nodejs\node_modules\npm\node_modules\npm-registry-client\lib\request.js:264:12)
+39 verbose stack     at CachingRegistryClient.<anonymous> (C:\Program Files\nodejs\node_modules\npm\node_modules\npm-registry-client\lib\request.js:252:14)
+39 verbose stack     at Request._callback (C:\Program Files\nodejs\node_modules\npm\node_modules\npm-registry-client\lib\request.js:172:14)
+39 verbose stack     at Request.self.callback (C:\Program Files\nodejs\node_modules\npm\node_modules\request\request.js:198:22)
+39 verbose stack     at emitTwo (events.js:100:13)
+39 verbose stack     at Request.emit (events.js:185:7)
+39 verbose stack     at Request.<anonymous> (C:\Program Files\nodejs\node_modules\npm\node_modules\request\request.js:1035:10)
+39 verbose stack     at emitOne (events.js:95:20)
+39 verbose stack     at Request.emit (events.js:182:7)
+39 verbose stack     at IncomingMessage.<anonymous> (C:\Program Files\nodejs\node_modules\npm\node_modules\request\request.js:962:12)
+40 verbose statusCode 403
+41 verbose pkgid behavior-promise
+42 verbose cwd c:\prj\nodes\libs\behavior-promise
+43 error Windows_NT 6.1.7601
+44 error argv "C:\\Program Files\\nodejs\\node.exe" "C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "publish"
+45 error node v5.7.0
+46 error npm  v3.6.0
+47 error code E403
+48 error "You cannot publish over the previously published version 1.0.0." : behavior-promise
+49 error If you need help, you may report this error at:
+49 error     <https://github.com/npm/npm/issues>
+50 verbose exit [ 1, true ]
