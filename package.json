@@ -1,6 +1,10 @@
 {
     "name": "behavior-promise",
-    "version": "1.0.3",
+    "description": "Organize complex code execution inJavascript using behavior trees",
+    "version": "1.0.4",
+    "keywords": [
+        "behavior","promises","ai","trees"
+    ],
     "main": "lib/behavior.js",
     "files": [
         "lib"
@@ -13,7 +17,6 @@
         "name":"Dimitrios Tsalkakis"
     },
     "license": "ISC",
-    "description": "Organize complex code execution inJavascript using behavior trees",
     "dependencies": {
         "js-yaml": "^3.6.0"
     },
