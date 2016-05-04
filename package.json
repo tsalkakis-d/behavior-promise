@@ -1,26 +1,31 @@
 {
-  "name": "behavior-promise",
-  "version": "1.0.0",
-  "main": "lib/behavior.js",
-  "scripts": {
-    "start": "node test.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "<dimtsalk@gmail.com>",
-  "license": "ISC",
-  "description": "Organize complex code execution inJavascript using behavior trees",
-  "dependencies": {
-    "js-yaml": "^3.6.0"
-  },
-  "directories": {
-    "example": "example"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tsalkakis-d/behavior-promise.git"
-  },
-  "bugs": {
-    "url": "https://github.com/tsalkakis-d/behavior-promise/issues"
-  },
-  "homepage": "https://github.com/tsalkakis-d/behavior-promise#readme"
+    "name": "behavior-promise",
+    "version": "1.0.0",
+    "main": "lib/behavior.js",
+    "files": [
+        "lib"
+    ],
+    "scripts": {
+        "start": "node test.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": {
+        "name":"Dimitrios Tsalkakis"
+    },
+    "license": "ISC",
+    "description": "Organize complex code execution inJavascript using behavior trees",
+    "dependencies": {
+        "js-yaml": "^3.6.0"
+    },
+    "directories": {
+        "example": "example"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/tsalkakis-d/behavior-promise.git"
+    },
+    "bugs": {
+        "url": "https://github.com/tsalkakis-d/behavior-promise/issues"
+    },
+    "homepage": "https://github.com/tsalkakis-d/behavior-promise#readme"
 }
