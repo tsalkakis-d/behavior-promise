@@ -22,23 +22,34 @@ In Node.js:
 $ npm install --save behavior-promise
 ```
 ## Definitions
-- A behavior **tree** runs conditionally a sequence of actions
-- A tree **node** may be of type: action, sequence, selector, inverter, success, failure
-- A node may have a **scope** with private variables, available to all its descentants
-- A node may be in one of the **states**: Running, finished with Success, finished with Failure
-- A node may be either an action or a container that contains child nodes
-- An **action** may be a promise, a callback, a boolean function or a plain function
-- A **promise** succeeds when it is fulfilled and fails when it is rejected
-- A **callback** function(err,res) succeeds when it returns res and fails when it returns err
-- A **boolean** function succeeds when it returns true and fails when it returns false
-- A **plain** function succeeds when it finishes without an exception and fails otherwise
-- A **sequence** node executes its childs nodes until one fails
-- A **selector** node executes its child nodes until one succeeds
-- An **inverter** node executes its only child and then it reverses the success/failure outcome
-- A **success** node executes its only child and then it returns always Success
-- A **failure** node executes its only child and then it returns always Failure
-- An action node accepts an **input argument** and returns an **output value**
-- When a node is executed, its output becomes the input of the next node to execute
+- A behavior **tree**:
+	- Contains a collection of **nodes**
+	- Has a **root** node. All other nodes are descendants of the root node
+	- Must be **prepared** before running
+	- Can **run** as a Promise and then return a **Success** or a **Failure** result
+- A **node**:
+	-  Can run as a Promise and then return a Success or a Failure result
+	-  May be in one of the **states**: Running, finished with Success, finished with Failure
+	-  Accepts an optional **input argument**
+	-  Returns an optional **output value**
+	-  When run, its output value becomes the input argument of the next node to run
+	-  Can have a **scope** containing private variables, available to the node and its descentants
+	-  May be of type:
+		- **Action**: Node is actually a function that:
+			-  Checks for a condition or performs a (probably time consuming) operation.
+			-  Returns a Success or a Failure result
+			-  May be called and run as a:
+				- **Promise** object, which succeeds when it is fulfilled and fails when it is rejected
+				- **Callback** function(error,result), which succeeds when it does not return an error and fails otherwise
+				- **Boolean** function, which succeeds when it returns true and fails otherwise
+				- **Plain** function, which succeeds when it finishes without an exception and fails otherwise
+		- **Container**: Node contains one or more child nodes. More specific, a container may be:
+			- A **Sequence**: node executes sequentially its child nodes until one of them fails
+			- A **Selector**: node executes sequentially its child nodes until one of them succeeds
+		- **Decorator**: Node that contains a single child node and shapes its result. More specific, a decorator may be:
+			- An **Inverter** node executes the child node and then reverses the success/failure result
+			- A **Success** node executes the child node then returns always Success
+			- A **Failure** node executes the child node and then returns always Failure
 
 
 ## Examples
@@ -72,25 +83,25 @@ An example of a game AI attempting to enter a room:
 var behavior = require('behavior-promise');
 var tree = behavior.create({
     root: {
-    	sel: [
-	        {seq:['door.isOpen','room.moveInto']},
-    	    {seq:[
-            	'door.moveTo',
-                {sel:[
-                	{seq:['door.isLocked','door.unlock']},
-                    {seq:['door.kick','door.isOpen']}
+    	sel: [       // Try various ways to enter the door
+	        {seq:['door.isOpen','room.moveInto']},	    // If door is already open, enter the room
+    	    {seq:[    // If door is closed, attempt to enter the room by opening, unlocking or kicking the door
+            	'door.moveTo',		// Move to the door
+                {sel:[	// Unlock or kick the door, whatever suceeds
+                	{seq:['door.isLocked','door.unlock']},	// Attempt to unlock
+                    {seq:['door.kick','door.isOpen']}		// Attempt to kick
                 ]},
-                'room.moveInto'
+                'room.moveInto'			// Move into the room if one of the above succeeded
             ]}
         ]
     },
     actions: {
     	door: {
-        	isOpen: function(){/*...*/},
-        	isLocked: function(){/*...*/},
-            moveTo: function(){/*...*/},
-            kick: function(){/*...*/},
-            unlock: function(){/*...*/},
+			isOpen: function(){/*...*/},
+			isLocked: function(){/*...*/},
+			moveTo: function(){/*...*/},
+			kick: function(){/*...*/},
+			unlock: function(){/*...*/},
         },
         room: {
         	moveInto: function(){/*...*/},
@@ -261,6 +272,8 @@ else
 ## Todo
 - Add more checks and errors
 - Accept functions as node properties
-- Implement more types and properties (random, parallel, repeat, repeatUntil, max)
+- Implement more types and properties (random, parallel, repeat, repeatUntil, forEach, max)
 - Add more features in the scope functionality
 - Add links to reuse tree parts in more than one places
+- Use aliases (for example, 'if' instead of 'sel')
+- Declare types of input arguments and output values, check type matching, consider optionals
