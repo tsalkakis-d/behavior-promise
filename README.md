@@ -1,6 +1,8 @@
 # behavior-promise
 Organize complex code execution in Javascript using [behavior trees](http://en.wikipedia.org/wiki/Behavior_tree).
 
+For suggesstions, feel free to write to the author.
+
 - [Features](#features)
 - [Installation](#installation)
 - [Definitions](#definitions)
@@ -10,11 +12,11 @@ Organize complex code execution in Javascript using [behavior trees](http://en.w
 
 ## Features
 - Mix promises, callbacks and plain functions without conversion
-- Dynamic order of actions execution
+- Dynamically select which actions to execute
 - Local variables in nodes (instead of blackboard implementation)
 - Scales well in complex applications without losing control
 - Adapted to use functions from existing objects with almost zero cost
-- Trees may be loaded from objects, JSON files or strings, YAML files or strings
+- Trees may be loaded from JS objects, JSON files or strings, YAML files or strings
 
 ## Installation 
 In Node.js:
@@ -26,16 +28,17 @@ $ npm install --save behavior-promise
 	- Contains a collection of **nodes**
 	- Has a **root** node. All other nodes are descendants of the root node
 	- Must be **prepared** before running
-	- Can **run** as a Promise and then return a **Success** or a **Failure** result
+	- Can **run** its nodes as a Promise and then return a **Success** or a **Failure** result
 - A **node**:
 	-  Can run as a Promise and then return a Success or a Failure result
+    -  Can have children nodes and run them in a specific way (depends on node type))
 	-  May be in one of the **states**: Running, finished with Success, finished with Failure
 	-  Accepts an optional **input argument**
 	-  Returns an optional **output value**
 	-  When run, its output value becomes the input argument of the next node to run
 	-  Can have a **scope** containing private variables, available to the node and its descentants
 	-  May be of type:
-		- **Action**: Node is actually a function that:
+		- **Action**: Node is actually an external or internal Javascript function that:
 			-  Checks for a condition or performs a (probably time consuming) operation.
 			-  Returns a Success or a Failure result
 			-  May be called and run as a:
@@ -273,7 +276,10 @@ else
 - Add more checks and errors
 - Accept functions as node properties
 - Implement more types and properties (random, parallel, repeat, repeatUntil, forEach, max)
-- Add more features in the scope functionality
+- Complete the scope functionality (currently descendants do not work)
 - Add links to reuse tree parts in more than one places
-- Use aliases (for example, 'if' instead of 'sel')
+- Add user-defined aliases (for example, 'if' instead of 'sel')
 - Declare types of input arguments and output values, check type matching, consider optionals
+- Declare the actionType once for each action and not in each node, where action is called
+- Add debug features
+- Develop a companion graphic tool for editing and debugging the trees
