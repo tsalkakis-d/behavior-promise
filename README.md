@@ -8,6 +8,7 @@ For suggesstions, feel free to write to the author.
 - [Definitions](#definitions)
 - [Examples](#examples)
 - [API](#api)
+- [Scopes](#scopes)
 - [Todo](#todo)
 
 ## Features
@@ -285,26 +286,26 @@ else
                    </ul>
                     The function will be invoked according to the rules of the specified actionType:
                     <ul>
-                        <li><b>promise</b>:<br>
+                        <li>If actionType is <b>promise</b>:<br>
                             Invoke a promise function<br>
                             If rejected or exception occurs, return failure.<br>
                             If fulfilled, return success
                         </li>
-                        <li><b>callback</b>:<br>
+                        <li>If actionType is <b>callback</b>:<br>
                             Invoke a function f(input,cb)
                             input is an optional argument
                             cb is a callback function of type cb(err,result) to call when done<br>
                             Success is returned when err is null and no exception occurs<br> 
                             Failure is returned when err is not null or an exception occurs
                         </li>
-                        <li><b>boolean</b>:<br>
+                        <li>If actionType is <b>boolean</b>:<br>
                             Invoke a function f(input)<br>
                             input is an optional argument<br>
                             When done, function must return a true/false result.<br> 
                             If result = false or exception occurs, return failure.<br> 
                             If result = true, return success
                         </li>
-                        <li><b>plain</b>:<br>
+                        <li>If actionType is <b>plain</b>:<br>
                             Invoke a plain function f(input)<br>
                             input is an optional argument<br>
                             When done, function must just return.<br> 
@@ -350,14 +351,27 @@ else
     </tr>
 </table>
 
+## Scopes
+Scope variables is the way to have local variables in nodes during a tree run:
+- A scope is a special object that can be declared inside any node, in order to declare some local variables for this node
+- For each property:
+    - The property **key** is the name of the local variable
+    - The property **value** is the value of the local variable
+    - You **could** set the value to another object that contains its own variables and so on
+    - In fact, you **should** set the value to an object, if you want to change properties of this variable from an inner node. This is the very same reason applied -for example- in Angular.js nested scopes (the famous dot rule).
+    - If you want just to read (and not modify) the value of a parent scope, then it is not necessary to use the dot rule. However, it is a good practice to always use this rule.
+- The scope is visible from all the inner actions inside this node or its children nodes
+- The scope of an inner node contains all the properties of itself and its parent nodes
+- If the scope of an inner node and the scope of a parent node share a property with the same name, an error is generated during the tree creation (scope collision). This is for avoiding bugs in large projects
+- It is best to create all scope variables during creation and not during execution (inside an action), if there is a chance of scope collision. 
+
 ## Todo
 - Add more checks and errors
 - Accept functions as node properties
 - Implement more types and properties (random, parallel, repeat, repeatUntil, forEach, max)
-- Complete the scope functionality (currently descendants do not work)
 - Add links to reuse tree parts in more than one places
 - Add user-defined aliases (for example, 'if' instead of 'sel')
 - Declare types of input arguments and output values, check type matching, consider optionals
 - Declare the actionType once for each action and not in each node, where action is called
 - Add debug features
-- Develop a companion graphic tool for editing and debugging the trees
+- Develop a companion graphic tool for editing and debugging the trees (or leave it to another contributor?)
