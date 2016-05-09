@@ -18,7 +18,7 @@ For suggesstions, feel free to write to the author.
 - Adapted to use functions from existing objects with almost zero cost
 - Trees may be loaded from JS objects, JSON files or strings, YAML files or strings
 
-## Installation 
+## Installation
 In Node.js:
 ```bash
 $ npm install --save behavior-promise
@@ -124,153 +124,231 @@ else
 
 ## API
 
-#### Module
-> ##### .create(config)
-> Initializes a tree and prepares it for execution.
-> 
-> config is a **Config** object described below.
-> 
-> Returns a **Tree** object described below.
-> 
-> If an error occurred during creation, then tree.error is set to a short string describing the error.
+<table>
+    <tr><td colspan=3><h3>Module object</h3></td></tr>
+    <tr><td colspan=3><h4>.create(config)</h4></td></tr>
+    <tr>
+        <td></td>
+        <th>Description</th>
+        <td><ul>
+            <li>Initializes a tree and prepares it for execution</li>
+        </ul> </td>
+    </tr>
+    <tr>
+        <td></td>
+        <th>Input</th>
+        <td>
+            <ul>
+                <li><b>config</b> (Required)<br>
+                    Defines the tree creation. Object with the following properties:
+                    <ul>
+                        <li>
+                            <b>.root</b> (Required)<br>
+                            The root node of the tree, containing all nodes. May be an object or a string:
+                            <ul>
+                                <li>If root is an <b>object</b>, then it is assumed to be a **Node** object described below</li>
+                                <li>If root is a <b>string</b>, then it is parsed according to `rootFormat`</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <b>.rootFormat</b> (Optional)<br>
+                            Determine the way to parse the given root, in order to build the tree.<br>
+                            Default value:
+                            <ul>
+                                <li>If root is an object, default rootFormat is `'object'`.</li>
+                                <li>If root is a string, default rootFormat is `'json'`</li>
+                            </ul>
+                            rootFormat may be one of the following strings:
+                            <ul>
+                                <li><b>'object'</b>:<br>Root (and its children) is already a tree object. Do not parse it</li>
+                                <li><b>'json'</b>:<br>Root is a JSON string. Parse it to get the tree object</li>
+                                <li><b>'jsonfile'</b>:<br>Root is the filename of a JSON text file. Load and parse it to get the tree object</li>
+                                <li><b>'yaml'</b>:<br>Root is a YAML text string. Parse it to get the tree object</li>
+                                <li><b>'yamlfile'</b>:<br>Root is the filename of a YAML text file. Load and parse it to get the tree object</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <b>.actions</b> (Required)<br>
+                            An object containing all the available actions as properties.<br>
+                            For each property:
+                            <ul>
+                                <li>Property key is the action path key (see run)</li>
+                                <li>Property value is either a function (the action) or an object containing more properties</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td></td>
+        <th>Output</th>
+        <td><ul>
+            <li><b>On success:</b><br>
+                Returns a <b>Tree</b> object (described below)
+            </li>
+            <li><b>On error:</b><br>
+                Returns a <b>Tree</b> object, where tree.error is set to a short string describing the error
+            </li>
+        </ul></td>
+    </tr>
+</table>
 
-#### Tree
-> ##### .run(input) 
-> Executes the tree
->
-> `input` is an optional single argument to pass to the tree
->
-> Returns a **Promise**:
-> - If tree execution ends with a success, the promise is fulfilled returning the success value
-> - If tree execution ends with a failure, the promise is rejected returning the failure value
->
-> ##### .error
-> Property to indicate that an error occured during tree creation:
-> - If an error occured during tree creation, set to a short string describing the error
-> - If no error occured, set to `null`
+<table>
+    <tr><td colspan=3><h3>Tree object</h3></td></tr>
+    <tr><td colspan=3><h4>.run(input)</h4></td></tr>
+    <tr>
+        <td></td>
+        <th>Description</th>
+        <td><ul>
+            <li>Runs (executes) the tree, starting from the root node</li>
+        </ul></td>
+    </tr>
+    <tr>
+        <td></td>
+        <th>Input</th>
+        <td><ul>
+            <li><b>input</b>
+                An optional single argument to pass to the root node
+            </li>
+        </ul></td>
+    </tr>
+    <tr>
+        <td></td>
+        <th>Output</th>
+        <td>
+            Returns a <b>promise</b> that will execute the whole tree and:
+            <ul>
+                <li>On success:<br>
+                The promise will be fulfilled and will return the output value of the last node executed</li>
+                <li>On Failure:<br>
+                The promise will be rejected and will return as an error the output value of the last node executed</li>
+            </ul>
+        </td>
+    </tr>
+    <tr><td colspan=3><h4>.error</h4></td></tr>
+    <tr>
+        <td></td>
+        <th>Description</th>
+        <td>
+            Property to indicate that an error occured during tree creation:
+            <ul>
+                <li>If an error occured during tree creation, property is set to a short string describing the error</li>
+                <li>If no error occured, property is set to null</li>
+            </ul>
+        </td>
+    </tr>
+</table>
 
-#### Config
-> Object to define a tree cration. May contain the following properties:
-> - **.root** (Required)
-> 	The root node of the tree, containing all nodes. May be an object or a string.
-> 	- If object, then it is a **Node** object described below
-> 	- If string, then it is parsed according to `rootFormat`
->
-> - **.rootFormat** (Optional)
-> 	Determine the way to parse the given root, in order to build the tree.
->
-> 	Default value: If root is an object, default rootFormat is `'object'`. If root is a string, default rootFormat is `'json'`
->
->   rootFormat may be one of the following strings:
->     - **'object'**
-> 		Root (and its children) is already a tree object. Do not parse it
-> 	- **'json'**
-> 	    Root is a JSON string. Parse it to get the tree object
-> 	- **'jsonfile'**
-> 		Root is the filename of a JSON text file. Load and parse it to get the tree object
-> 	- **'yaml'**
-> 		Root is a YAML text string. Parse it to get the tree object
-> 	- **'yamlfile'**
-> 		Root is the filename of a YAML text file. Load and parse it to get the tree object
-> - **.actions** (Required) 
->	An object containing all the available actions as properties.
->	
->   For each property:
-> 	- Property key is the action path key (see run)
-> 	- Property value is either a function (the action) or an object containing more properties
-
-#### Node
-> Object with the following properties (all optional):
-> - **.type**
->   A string indicating the node type.
->
->   May be one of: 'action','seq','sel','invert','success','failure'.
->
->   If no type is given but node has also a type specific property (`action`, `seq`, `sel`, `inver`, `success`, `failure`), then node type is concluded from the property key.
->
->   If no type is given and there is no type specific property but there is a `nodes` property, then node type is `seq`.
-> - **.actionType**
->   If node is an action, define here the action type. 
->   
->   If node is not an action, define here the default action type of the children nodes.
->   
->   May be one of : `promise`,`callback`,`boolean`,`plain` (see action for definitions).
->   
->   Default is going up parent actionType. If `actionType` is not found and no children specific property is given, then actionType='plain'.
-> - **.scope**
->   A scope object, containing a set of variables as properties. Each property X is available as this.X inside the  actions of this node and its child nodes.
->   
->   An action, through this, can access its scope and all its parent nodes scopes as one scope.
->   
->   In order to avoid bugs, it is considered an error to have a property with the same name in a node scope and in any of its children nodes scope.
-> - **.title**
->   A string describing this node
->   
->   Useful for editing/viewing/debugging the tree
->   
-> - **.action**
->   Action to execute.
->   
->   May be a word string, an object path string or a function:
->   - If word string (AAAA), execute the function from tree.config.actions[AAAA]
->   - If object path string (AAA.BBB.CCC), execute the function from tree.config.actions[AAA][BBB][CCC]
->   - If function, execute directly this function.
->   
->   The function will be invoked according to the rules of the specified actionType:
->   - **promise**: 
->     Invoke a promise function
->   
->     If rejected or exception occurs, return failure. If fulfilled, return success
->   - **callback**: 
->     Invoke a function f(input,cb)
->   
->     input is an optional argument
->     
->     cb is a callback function of type cb(err,result)
->     
->     When done, cb is called. If err is not null or an exception occurs, return failure. If err is null and no exception occurs, return success
->   - **boolean**: 
->     Invoke a function f(input)
->   
->     input is an optional argument
->     
->     When done, function must return a true/false result. If result = false or exception occurs, return failure. If result = true, return success
->   - **plain**: 
->     Invoke a plain function f(input)
->   
->     input is an optional argument
->     
->     When done, function must just return. If exception occurs, return failure. If no exception occurs, return success
-> - **.seq**
-> 
->   Sequence. An array with child nodes to execute in sequence.
->   
->   When a failure occurs in a child node, stop the sequence and return a failure.
->   
->   If all nodes succeeded, return a success
->   
-> - **.sel**
-> 
->   Priority selector. An array with nodes to select one.
->   
->   Try to execute all child nodes in sequence, from first to last.
->   
->   When a child node succeeds, stop the sequence and return immediately success.
->   
->   When a child node fails, try the next node in sequence.
->   
->   If all nodes failed, return a failure.
->   
-> - **.invert**
->   Invert decorator. Execute the child node, reverse its result (success<->failure) and return it.
-> - **.success**
->   Success Decorator. Execute the child node and return success, no matter what the child node returned.
-> - **.failure**
->   Failure Decorator. Execute the child node and return failure, no matter what the child node returned
-> - **.nodes**
->   Alternative name of the children object. Instead of declaring a different property for each type, declare it as `nodes`. You will have also to specify the type by declaring the .type property.
->   
->   Use either this or a type specific property (seq,sel,inv etc)
+<table>
+    <tr><td colspan=3><h3>Node object</h3></td></tr>
+    <tr>
+        <td></td>
+        <th>Description</th>
+        <td>
+            Object with the following properties (all optional):
+            <ul>
+                <li>
+                    <b>.type</b> (Optional):<br>
+                    A string indicating the node type.<br>
+                    May be one of: 'action','seq','sel','invert','success','failure'.<br>
+                    If no type is given but node has also a type specific property (`action`, `seq`, `sel`, `inver`, `success`, `failure`), then node type is concluded from the property key.<br>
+                    If no type is given and there is no type specific property but there is a `nodes` property, then node type is `seq`.<br>
+                </li>
+                <li>
+                    <b>.scope</b> (Optional):<br>
+                    A scope object, containing a set of variables as properties. Each property X is available as this.X inside the  actions of this node and its child nodes.<br>
+                    An action, through this, can access its scope and all its parent nodes scopes as one scope.<br>
+                    In order to avoid bugs, it is considered an error to have a property with the same name in a node scope and in any of its children nodes scope.<br>
+                </li>
+                <li>
+                    <b>.title</b> (Optional):<br>
+                    A string describing this node<br>
+                    Useful for editing/viewing/debugging the tree<br>
+                </li>
+                <li>
+                    <b>.actionType</b> (Optional):<br>
+                    If node is an action, define here the action type.<br>
+                    If node is not an action, define here the default action type of the children nodes.<br>
+                    May be one of : `promise`,`callback`,`boolean`,`plain` (see action for definitions).<br>
+                    Default is going up parent actionType. If `actionType` is not found and no children specific property is given, then actionType='plain'.<br>
+                </li>
+                <li>
+                    <b>.action</b> (Optional):<br>
+                    Action to execute.<br>
+                    May be a word string, an object path string or a function:
+                    <ul>
+                       <li>If word string (AAAA), execute the function from tree.config.actions[AAAA]</li>
+                       <li>If object path string (AAA.BBB.CCC), execute the function from tree.config.actions[AAA][BBB][CCC]</li>
+                       <li>If function, execute directly this function</li>
+                   </ul>
+                    The function will be invoked according to the rules of the specified actionType:
+                    <ul>
+                        <li><b>promise</b>:<br>
+                            Invoke a promise function<br>
+                            If rejected or exception occurs, return failure.<br>
+                            If fulfilled, return success
+                        </li>
+                        <li><b>callback</b>:<br>
+                            Invoke a function f(input,cb)
+                            input is an optional argument
+                            cb is a callback function of type cb(err,result) to call when done<br>
+                            Success is returned when err is null and no exception occurs<br> 
+                            Failure is returned when err is not null or an exception occurs
+                        </li>
+                        <li><b>boolean</b>:<br>
+                            Invoke a function f(input)<br>
+                            input is an optional argument<br>
+                            When done, function must return a true/false result.<br> 
+                            If result = false or exception occurs, return failure.<br> 
+                            If result = true, return success
+                        </li>
+                        <li><b>plain</b>:<br>
+                            Invoke a plain function f(input)<br>
+                            input is an optional argument<br>
+                            When done, function must just return.<br> 
+                            Success is returned when no exception occurs<br>
+                            Failure is returned when an exception occurs
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <b>.seq</b> (Optional):<br>
+                    Sequence. An array with child nodes to execute in sequence.<br>
+                    When a failure occurs in a child node, stop the sequence and return a failure.<br>
+                    If all nodes succeeded, return a success
+                </li>
+                <li>
+                    <b>.sel</b> (Optional):<br>
+                    Priority selector. An array with nodes to select one.<br>
+                    Try to execute all child nodes in sequence, from first to last.<br>
+                    When a child node succeeds, stop the sequence and return immediately success.<br>
+                    When a child node fails, try the next node in sequence.<br>
+                    If all nodes failed, return a failure.<br>
+                </li>
+                <li>
+                    <b>.invert</b> (Optional):<br>
+                    Invert decorator. Execute the child node, reverse its result (success<->failure) and return it.
+                </li>
+                <li>
+                    <b>.success</b> (Optional):<br>
+                    Success Decorator. Execute the child node and return success, no matter what the child node returned.
+                </li>
+                <li>
+                    <b>.failure</b> (Optional):<br>
+                    Failure Decorator. Execute the child node and return failure, no matter what the child node returned
+                </li>
+                <li>
+                    <b>.nodes</b> (Optional):<br>
+                    Alternative name of the children object.<br> 
+                    Instead of declaring a different property for each type, declare it as `nodes`. You will have also to specify the type by declaring the .type property.<br>
+                    Use either this property or a type specific property (seq,sel,inv etc)
+                </li>
+            </ul>
+        </td>
+    </tr>
+</table>
 
 ## Todo
 - Add more checks and errors
