@@ -1,7 +1,7 @@
 {
     "name": "behavior-promise",
     "description": "Organize complex code execution inJavascript using behavior trees",
-    "version": "1.0.8",
+    "version": "1.0.9",
     "keywords": [
         "behavior","promises","ai","trees"
     ],
