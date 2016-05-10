@@ -139,7 +139,7 @@ else
         <td></td>
         <th>Input</th>
         <td>
-            <ul>
+            <ul style="text-align:left;">
                 <li><b>config</b> (Required)<br>
                     Defines the tree creation. Object with the following properties:
                     <ul>
@@ -185,14 +185,16 @@ else
     <tr>
         <td></td>
         <th>Output</th>
-        <td><ul>
-            <li><b>On success:</b><br>
-                Returns a <b>Tree</b> object (described below)
-            </li>
-            <li><b>On error:</b><br>
-                Returns a <b>Tree</b> object, where tree.error is set to a short string describing the error
-            </li>
-        </ul></td>
+        <td>
+            <ul style="text-align:left;">
+                <li><b>On success:</b><br>
+                    Returns a <b>Tree</b> object (described below)
+                </li>
+                <li><b>On error:</b><br>
+                    Returns a <b>Tree</b> object, where tree.error is set to a short string describing the error
+                </li>
+            </ul>\n\
+        </td>
     </tr>
 </table>
 
@@ -202,25 +204,29 @@ else
     <tr>
         <td></td>
         <th>Description</th>
-        <td><ul>
-            <li>Runs (executes) the tree, starting from the root node</li>
-        </ul></td>
+        <td>
+            <ul style="text-align:left;">
+                <li>Runs (executes) the tree, starting from the root node</li>
+            </ul>\n\
+        </td>
     </tr>
     <tr>
         <td></td>
         <th>Input</th>
-        <td><ul>
-            <li><b>input</b>
-                An optional single argument to pass to the root node
-            </li>
-        </ul></td>
+        <td>
+            <ul style="text-align:left;">
+                <li><b>input</b>
+                    An optional single argument to pass to the root node
+                </li>
+            </ul>\n\
+        </td>
     </tr>
     <tr>
         <td></td>
         <th>Output</th>
         <td>
             Returns a <b>promise</b> that will execute the whole tree and:
-            <ul>
+            <ul style="text-align:left;">
                 <li>On success:<br>
                 The promise will be fulfilled and will return the output value of the last node executed</li>
                 <li>On Failure:<br>
@@ -234,7 +240,7 @@ else
         <th>Description</th>
         <td>
             Property to indicate that an error occured during tree creation:
-            <ul>
+            <ul style="text-align:left;">
                 <li>If an error occured during tree creation, property is set to a short string describing the error</li>
                 <li>If no error occured, property is set to null</li>
             </ul>
@@ -249,7 +255,7 @@ else
         <th>Description</th>
         <td>
             Object with the following properties (all optional):
-            <ul>
+            <ul style="text-align:left;">
                 <li>
                     <b>.type</b> (Optional):<br>
                     A string indicating the node type.<br>
