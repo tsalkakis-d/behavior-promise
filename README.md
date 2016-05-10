@@ -125,7 +125,7 @@ else
 
 ## API
 
-<table>
+<table style="text-align:left; vertical-align:top;">
     <tr><td colspan=3><h3>Module object</h3></td></tr>
     <tr><td colspan=3><h4>.create(config)</h4></td></tr>
     <tr>
@@ -196,7 +196,7 @@ else
     </tr>
 </table>
 
-<table>
+<table style="text-align:left; vertical-align:top;">
     <tr><td colspan=3><h3>Tree object</h3></td></tr>
     <tr><td colspan=3><h4>.run(input)</h4></td></tr>
     <tr>
@@ -242,7 +242,7 @@ else
     </tr>
 </table>
 
-<table>
+<table style="text-align:left; vertical-align:top;">
     <tr><td colspan=3><h3>Node object</h3></td></tr>
     <tr>
         <td></td>
