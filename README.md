@@ -1,9 +1,9 @@
 # behavior-promise
-Organize complex code execution in Javascript using [behavior trees](http://en.wikipedia.org/wiki/Behavior_tree).
+Organize complex code execution in Javascript using behavior trees.
 
 For an introduction in behavior trees, you can check the [Wikipedia article](http://en.wikipedia.org/wiki/Behavior_tree) or [this page](http://guineashots.com/2014/08/10/an-introduction-to-behavior-trees-part-2/).
 
-For suggesstions, feel free to contact the author (dimtsalk@gmail.com).
+For suggestions, feel free to contact the author <mailto:dimtsalk@gmail.com>.
 
 - [Features](#features)
 - [Installation](#installation)
