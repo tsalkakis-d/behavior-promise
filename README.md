@@ -1,9 +1,12 @@
 # behavior-promise
 Organize complex code execution in Javascript using behavior trees.
 
+**Latest news**: Parallel container is available (Documentation only, NOT working yet!)
+
 For an introduction in behavior trees, you can check the [Wikipedia article](http://en.wikipedia.org/wiki/Behavior_tree) or [this page](http://guineashots.com/2014/08/10/an-introduction-to-behavior-trees-part-2/).
 
 For suggestions, feel free to contact the author <mailto:dimtsalk@gmail.com>.
+        
 
 - [Features](#features)
 - [Installation](#installation)
@@ -11,6 +14,7 @@ For suggestions, feel free to contact the author <mailto:dimtsalk@gmail.com>.
 - [Examples](#examples)
 - [API](#api)
 - [Scopes](#scopes)
+- [Parallel execution](#parallel-execution)
 - [Todo](#todo)
 
 ## Features
@@ -34,7 +38,7 @@ $ npm install --save behavior-promise
 	- Can **run** its nodes as a Promise and then return a **Success** or a **Failure** result
 - A **node**:
 	-  Can run as a Promise and then return a Success or a Failure result
-    -  Can have children nodes and run them in a specific way (depends on node type))
+    -  Can have children nodes and run them in a specific way (depends on node type)
 	-  May be in one of the **states**: Running, finished with Success, finished with Failure
 	-  Accepts an optional **input argument**
 	-  Returns an optional **output value**
@@ -50,17 +54,18 @@ $ npm install --save behavior-promise
 				- **Boolean** function, which succeeds when it returns true and fails otherwise
 				- **Plain** function, which succeeds when it finishes without an exception and fails otherwise
 		- **Container**: Node contains one or more child nodes. More specific, a container may be:
-			- A **Sequence**: node executes sequentially its child nodes until one of them fails
-			- A **Selector**: node executes sequentially its child nodes until one of them succeeds
+			- A **Sequence** node executes sequentially its child nodes until one of them fails
+			- A **Selector** node executes sequentially its child nodes until one of them succeeds
+            - A **Parallel** node executes all of its child nodes in parallel, until max failures of max successes occur
 		- **Decorator**: Node that contains a single child node and shapes its result. More specific, a decorator may be:
-			- An **Inverter** node executes the child node and then reverses the success/failure result
-			- A **Success** node executes the child node then returns always Success
-			- A **Failure** node executes the child node and then returns always Failure
+			- An **Inverter** node executes its child node and then reverses the success/failure result
+			- A **Success** node executes its child node then returns always Success
+			- A **Failure** node executes its child node and then returns always Failure
 
 
 ## Examples
 
-A simple example:
+Example 1. A simple example (prints '1', then prints 'Done'):
 
 ```js
 var behavior = require('behavior-promise');
@@ -75,7 +80,7 @@ var tree = behavior.create({
         ]
     },
     actions: {
-		action1: function() {return 1},
+        action1: function() {return 1},
         action2: function(x) {console.log(x)},
         action3: function() {console.log('Done')}
     }
@@ -83,21 +88,21 @@ var tree = behavior.create({
 tree.run();
 ```
 
-An example of a game AI attempting to enter a room:
+Example 2. An example of a game AI attempting to enter a room:
 
 ```js
 var behavior = require('behavior-promise');
 var tree = behavior.create({
     root: {
-    	sel: [       // Try various ways to enter the door
-            {seq:['door.isOpen','room.moveInto']},	    // If door is already open, enter the room
-            {seq:[    // If door is closed, attempt to enter the room by opening, unlocking or kicking the door
-                'door.moveTo',		// Move to the door
+    	sel: [ // Try various ways to enter the door
+            {seq:['door.isOpen','room.moveInto']}, // If door is open, enter
+            {seq:[ // If door is closed, try to open/unlock/kick the door
+                'door.moveTo', // Move to the door
                 {sel:[	// Unlock or kick the door, whatever suceeds
-                    {seq:['door.isLocked','door.unlock']},	// Attempt to unlock
-                    {seq:['door.kick','door.isOpen']}		// Attempt to kick
+                    {seq:['door.isLocked','door.unlock']}, // Attempt to unlock
+                    {seq:['door.kick','door.isOpen']} // Attempt to kick
                 ]},
-                'room.moveInto'			// Move into the room if one of the above succeeded
+                'room.moveInto'	// Move into the room if an action succeeded
             ]}
         ]
     },
@@ -124,6 +129,147 @@ else
         function(){console.log('FAILURE')}
     );
 ```
+
+Example 3. A 2nd order equation solver with real examples:
+
+```js
+// Purpose: 
+//      Find the roots of the equation: a*x^2 + b*x + c = 0
+//      Demonstrate how to organize complex code
+
+var behavior = require('behavior-promise');
+
+// To make the tree more readable, define some intermediate branches with 
+// specific names
+
+// function to create and return a tree branch with the following functionality:
+//      If output of node <if> satisfies node <is> as input, 
+//      then run node <then>, else run node <else>
+function ifNode(nodes) {
+    return {sel:[{seq:[nodes.if, nodes.is, nodes.then]}, nodes.else]};
+}
+
+var _allOrNone = ifNode({if:'get.c', is:'is.zero', 
+    then:'calculate.allSolutions', else:'calculate.noSolution'});
+var _firstOrder = ifNode({if:'get.b', is:'is.zero', 
+    then:_allOrNone, else:'calculate.firstOrder'});
+var _doubleOrComplex = ifNode({if:'get.discriminant', is:'is.zero', 
+    then:'calculate.doubleRoot', else:'calculate.complexRoots'});
+var _realDoubleOrComplex = ifNode({if:'get.discriminant', is:'is.positive', 
+    then:'calculate.realRoots', else:_doubleOrComplex});
+var _secondOrder = {seq:['calculate.discriminant', _realDoubleOrComplex]};
+var _solve = ifNode({if:'get.a', is:'is.zero', 
+    then:_firstOrder, else:_secondOrder});
+
+// Build the tree
+
+var quadratic = behavior.create({
+    
+    // Define the tree
+    root: {                                         
+        debug: false,
+        scope: { // Equation variables:
+            // Input vars: Equation coefficients
+            in:     { a:null, b:null, c:null},      
+            // Intermediate vars: Discriminant, discriminant root
+            med:    { d:null, dr: null },           
+            // Output vars: Roots, description of solution
+            out:    { roots:[], description: ''}   
+        },
+        seq: [ // Main sequence
+            'method.readInputs',        
+            _solve, 
+            'method.displayResults'
+        ]
+    },
+    
+    // Define the possible actions
+    actions: {
+        
+        // I/O modules
+        method: {
+            readInputs: function(args) {
+                this.in.a = args.a; 
+                this.in.b = args.b; 
+                this.in.c = args.c;
+                this.out.roots = [];
+                console.log('Solving for a=',this.in.a,
+                    ', b=',this.in.b,', c=',this.in.c);
+            },
+            displayResults: function() {
+                console.log(this.out.description);
+                if (this.out.roots.length>0)
+                    console.log(this.out.roots.join(', '));
+                console.log();
+            },
+        },
+        
+        // Condition checkers
+        is: {
+            positive:       function(x) { if (!(x>0)) throw false; },
+            zero:           function(x) { if (!(x==0)) throw false; },
+        },
+        
+        // Value getters
+        get: {
+            a:              function()  { return this.in.a; },
+            b:              function()  { return this.in.b; },
+            c:              function()  { return this.in.c; },
+            discriminant:   function()  { return this.med.d; }
+        },
+        
+        // Calculate modules
+        calculate: {
+            discriminant: function() {
+                this.med.d = this.in.b*this.in.b-4*this.in.a*this.in.c;
+                console.log('Discriminant = ',this.med.d);
+            },
+            firstOrder: function() {
+                this.out.description = 'First order solution';
+                this.out.roots.push(-this.in.c/this.in.b);
+            },
+            realRoots: function() {
+                this.out.description = 'Real roots';
+                this.med.dr = Math.sqrt(this.med.d); 
+                this.out.roots.push((-this.in.b-this.med.dr)/(2*this.in.a)); 
+                this.out.roots.push((-this.in.b+this.med.dr)/(2*this.in.a)); 
+            },
+            complexRoots: function() {
+                this.out.description = 'Complex roots';
+                this.med.dr = Math.sqrt(-this.med.d); 
+                var real = -this.in.b/(2*this.in.a);
+                var imagp = Math.abs(this.med.dr/(2*this.in.a));
+                this.out.roots.push( real + '+i'+ imagp);
+                this.out.roots.push( real + '-i'+ imagp);
+            },
+            doubleRoot: function() {
+                this.out.description = 'Double root';
+                this.out.roots.push(-this.in.b/(2*this.in.a));
+            },
+            allSolutions: function() {
+                this.out.description = 'Any number is a solution';
+            },
+            noSolution: function() {
+                this.out.description = 'There are no solutions';
+            },
+        },
+    }
+});
+
+// Run
+quadratic.run({a:1,b:0,c:-1})               // Real roots
+.then(function(){ return quadratic.run({a:2,b:4,c:-3});})   // Real roots
+.then(function(){ return quadratic.run({a:1,b:-4,c:4});})   // Double root
+.then(function(){ return quadratic.run({a:5,b:2,c:7});})    // Complex roots
+.then(function(){ return quadratic.run({a:0,b:1,c:-4});})   // 1st order
+.then(function(){ return quadratic.run({a:0,b:0,c:0});})    // All solutions
+.then(function(){ return quadratic.run({a:0,b:0,c:4});})    // No solution
+.catch(function(err){
+    console.log('ERROR:');
+    console.log(err);
+});
+```
+
 
 ## API
 
@@ -241,6 +387,35 @@ else
         When a child node succeeds, stop the sequence and return immediately success.<br>
         When a child node fails, try the next node in sequence.<br>
         If all nodes failed, return a failure.<br>
+        - **.par** (Optional):<br>
+        Parallel execution. An array with nodes to run in parallel.<br>
+        Execute all child nodes in parallel, starting them at the same time.<br>
+        When (maxSuccess) nodes end with a success, stop and return with a success.<br>
+        When (maxFailure) nodes end with a failure, stop and return with a failure.<br>
+        When neither maxSuccess nor maxFailure trigger but all child nodes return, return the result of the last child node<br>
+        The output value of the parallel container will be the output value of the last child node that caused the success or failure.<br>
+        - **.maxSuccess** (Optional):<br>
+            - When set inside a parallel or a sequence container:
+            Defines how many of its child nodes must end with success in order for the container to end with a success. 
+            May be:
+                - A number (1,2,3,...), indicating how many child nodes must end with a success in order to trigger a success
+                - true, indicating that all child nodes must end with a success in order to trigger a success
+                - false, indicating that container should not check for maxSuccess
+        Default value is false (do not check maxSuccess)
+        - **.maxFailure** (Optional):<br>
+            - When set inside a parallel or a selector container:
+            Defines how many of its child nodes must end with failure in order for the container to end with a failure. 
+            May be:
+                - A number (1,2,3,...), indicating how many child nodes must end with a failure in order to trigger a failure
+                - true, indicating that all child nodes must end with a failure in order to trigger a failure
+                - false, indicating that container should not check for maxFailure
+            Default value is false (do not check maxFailure)
+        - **.waitForMe** (Optional):<br>
+        If set to true in a child node of a parallel container, then the container will wait for this child node to end before returning with the result.<br> 
+        Else, the container may return before this node returns.<br> 
+        - **.waitForAll** (Optional):<br>
+        If set to true in a parallel container, then the container will wait for all of its child nodes to end before returning with the result.<br> 
+        Else, the container may return before all of its child nodes return.<br> 
         - **.invert** (Optional):<br>
         Invert decorator. Execute the child node, reverse its result (success<->failure) and return it.
         - **.success** (Optional):<br>
@@ -251,6 +426,7 @@ else
         Alternative name of the children object.<br> 
         Instead of declaring a different property for each type, declare it as `nodes`. You will have also to specify the type by declaring the .type property.<br>
         Use either this property or a type specific property (seq,sel,inv etc)
+
 
 ## Scopes
 Scope variables is the way to have local variables in nodes during a tree run:
@@ -266,13 +442,62 @@ Scope variables is the way to have local variables in nodes during a tree run:
 - If the scope of an inner node and the scope of a parent node share a property with the same name, an error is generated during the tree creation (scope collision). This is for avoiding bugs in large projects
 - It is best to create all scope variables during creation and not during execution (inside an action), if there is a chance of scope collision. 
 
+## Parallel execution
+- **Discussion**
+
+If we want to build a really useful application, then implementing  parallel execution of nodes is a must. We can always run them as separate trees that share data through actions, but a parallel container is more elegant.
+
+So, we introduce the parallel container. Its execution starts differently, because its child nodes try to run all together at once. It also stops differently, because there are much more options to control when to stop and return.
+
+As a bonus, we don't mess with ticks and concurrent execution. To run a parallel container is easy, just fire all child nodes and wait..
+
+However, care must be taken when finishing a parallel container. Suppose that a child node finishes and the result of the parallel container is ready. But the other child nodes are still running. What should we do with them? 
+
+- (1) Should we interrupt and terminate them and THEN return the container result?
+- (2) Should we wait for them to finish and THEN return the container result?
+- (3) Or should we let them finish, but first return IMMEDIATELY the container result?
+
+The first option is clearly no good. We certainly don't want to execute partly an action, because this could introduce countless errors.
+
+The second option may be needed sometimes, but has some drawbacks. Suppose that a parallel container contains two actions, a real job action and a timeout watchdog action. If the real job finishes, should we wait for the time out action to finish too? Surely not.
+
+For this reason, the third option is selected as the default behavior. This is what we usually want: Return immediately when the result is determined, but let the actions finish in their time. If we call again too soon the same parallel container, it will silently wait until all of its internal actions finish first, then start the new execution.
+
+Sometimes, we may need to override the default behaviour and use the second option, which is to wait until ALL (or at least SOME critical) running actions terminate and THEN return the container result.
+
+There are two mechanisms to override the default behavior and make the parallel container wait for its child nodes: By child node or by parallel container.
+
+By child node means that one or more specific child nodes must terminate before the container returns. For this reason, set the option `waitForMe` to true inside each one of those specific child nodes we should wait for.
+
+By parallel container means that all (and not just some) child nodes must terminate before the container returns. For this reason, set the container option `waitForAll` to true. This is equivalent to setting `waitForMe` for each child node.
+
+When an action terminates and is deeply inside a branch of a parallel container that is ready to return, then no more nodes are executed in this branch. Instead, execution of the branch stops here and all of the running nodes terminate, while their results are thrown away.
+
+- **Example**
+
+To clarify what we mean by terminating an action inside a branch: Suppose that a parallel container A contains two nodes: An action named B and a sequence named C. Sequence C contains itself 5 actions, named c1,c2,c3,c4 and c5 respectively.
+
+Now, suppose that A.maxSuccess was set to 1 and action B terminates first with Success, so we must return with Success from A too. At this moment, the action c3 is in the middle of its execution. 
+    - Here's what will happen next, if the default behavior applies:
+        - Action A returns with the Success result from B. If now we call again A too soon, it will wait because one of its child actions (c3) is still running (marking A as busy).
+        - Action c3 finishes, with success or with failure. Sequence C will not continue to action c4 (if c3 finished with a success) but returns immediately.
+        - Action A throws away the result that C just returned, because it has already returned with a result. No more child nodes of A will be executed
+        - If we call now A again, it will start without a delay
+    - But here's what will happen next, if A.waitForAll==true instead:
+        - Action c3 finishes with success or with failure. Sequence C will not continue to c4 (if c3 finished with a success) but returns
+        - Action A throws away the result that C just returned
+        - Action A returns with the success result from B. No internal actions are running, so if we call again A immediately, it will start without a delay
+
+When we use a parallel container, we should be aware that the behavior of the container nodes inside the parallel has changed: A sequence may stop processing its nodes for a reason outside of this sequence.
+
 ## Todo
 - Add more checks and errors
 - Accept functions as node properties
-- Implement more types and properties (random, parallel, repeat, repeatUntil, forEach, max)
+- Implement more types and properties (random, repeat, forEach) and properties (max, until, while)
 - Add links to reuse tree parts in more than one places
 - Add user-defined aliases (for example, 'if' instead of 'sel')
 - Declare types of input arguments and output values, check type matching, consider optionals
 - Declare the actionType once for each action and not in each node, where action is called
 - Add debug features
+- Write tests
 - Develop a companion graphic tool for editing and debugging the trees (or leave it to another contributor?)
