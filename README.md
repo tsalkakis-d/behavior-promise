@@ -31,7 +31,6 @@ In Node.js:
 $ npm install --save behavior-promise
 ```
 or 
-In Node.js:
 ```bash
 $ yarn add behavior-promise
 ```
