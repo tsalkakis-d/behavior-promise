@@ -30,6 +30,12 @@ In Node.js:
 ```bash
 $ npm install --save behavior-promise
 ```
+or 
+In Node.js:
+```bash
+$ yarn add behavior-promise
+```
+
 ## Definitions
 - A behavior **tree**:
 	- Contains a collection of **nodes**
