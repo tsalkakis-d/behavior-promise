@@ -134,11 +134,16 @@ var tree = behavior.create({
 // Run the tree
 if (tree.error)
     console.log(tree.error);
-else 
-    tree.run().then(
-    	function(){console.log('SUCCESS')},
-        function(){console.log('FAILURE')}
-    );
+else {
+    tree.run({doorStatus: 'open'})
+    .then(function() {return tree.run({doorStatus: 'closed'})})
+    .then(function() {return tree.run({doorStatus: 'locked'})})
+    .then(function() {return tree.run({doorStatus: 'kickable'})})
+    .then(function() {return tree.run({doorStatus: 'rock'})})
+    .catch(function(err) {
+        console.log('EXCEPTION:', err)
+    })
+}
 ```
 
 Example 3. A 2nd order equation solver with real examples:
