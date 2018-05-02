@@ -3,7 +3,10 @@
     "description": "Organize complex code execution inJavascript using behavior trees",
     "version": "1.0.48",
     "keywords": [
-        "behavior","promises","ai","trees"
+        "behavior",
+        "promises",
+        "ai",
+        "trees"
     ],
     "main": "lib/behavior.js",
     "files": [
@@ -14,11 +17,11 @@
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": {
-        "name":"Dimitrios Tsalkakis"
+        "name": "Dimitrios Tsalkakis"
     },
     "license": "ISC",
     "dependencies": {
-        "js-yaml": "^3.6.0"
+        "js-yaml": "^3.11.0"
     },
     "directories": {
         "example": "example"
