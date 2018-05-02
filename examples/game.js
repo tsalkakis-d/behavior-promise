@@ -2,19 +2,22 @@
 // Slightly better that example in README.md
 // Exports an options object
 
-// Return a random true/false
-function coinToss() {return Math.random() > 0.5}
-
 // Debug/Report
 function report(msg) {
     console.log(msg)
 }
 
+// Initial status of a door may be one of:
 var statusDetails = {
+    // Door is already open
     open: {open: true, locked: false, haveKey: undefined, kickable: undefined},
+    // Door is closed, but we may just open it
     closed: {open: false, locked: false, haveKey: undefined, kickable: undefined},
+    // Door is locked, but we have the key
     locked: {open: false, locked: true, haveKey: true, kickable: undefined},
+    // Door is locked and we don't have the key, but will fall if kicked
     kickable: {open: false, locked: true, haveKey: false, kickable: true},
+    // Door is locked, can't be unlocked and can't be damaged by kicking
     rock: {open: false, locked: true, haveKey: false, kickable: false},
 }
 
@@ -34,18 +37,18 @@ module.exports = {
             'readInput',
             // Either enter or abandon
             {sel: [
-                // Try various method to open the door
+                // Try various methods to open the door
                 {seq: [
-                    // One method should work in order to be able to enter the room
                     {sel: [
                         'door.isOpen', // Check if door is already open
-                        {seq:['door.open', 'door.isOpen']}, // If failed, try to open
-                        {seq: ['door.unlock', 'door.open', 'door.isOpen']}, // If failed, try to unlock, then open
-                        {seq: ['door.kick', 'door.isOpen']} // If failed, try to kick
+                        {seq:['door.open', 'door.isOpen']}, // If failed, try to open the door
+                        {seq: ['door.unlock', 'door.open', 'door.isOpen']}, // If failed, try to unlock the door, then open
+                        {seq: ['door.kick', 'door.isOpen']} // If failed, try to kick the door
                     ]},
-                    // Pass the door
+                    // Enter the room
                     'room.moveInto'	
                 ]},
+                // Could not open the door, must abandon the plan of entering this room
                 'room.abandon'
             ]},
         ],

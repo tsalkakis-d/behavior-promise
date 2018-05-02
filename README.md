@@ -99,18 +99,18 @@ var tree = behavior.create({
             'readInput',
             // Either enter or abandon
             {sel: [
-                // Try various method to open the door
+                // Try various methods to open the door
                 {seq: [
-                    // One method should work in order to be able to enter the room
                     {sel: [
                         'door.isOpen', // Check if door is already open
-                        {seq:['door.open', 'door.isOpen']}, // If failed, try to open
-                        {seq: ['door.unlock', 'door.open', 'door.isOpen']}, // If failed, try to unlock, then open
-                        {seq: ['door.kick', 'door.isOpen']} // If failed, try to kick
+                        {seq:['door.open', 'door.isOpen']}, // If failed, try to open the door
+                        {seq: ['door.unlock', 'door.open', 'door.isOpen']}, // If failed, try to unlock the door, then open
+                        {seq: ['door.kick', 'door.isOpen']} // If failed, try to kick the door
                     ]},
-                    // Pass the door
+                    // Enter the room
                     'room.moveInto'	
                 ]},
+                // Could not open the door, must abandon the plan of entering this room
                 'room.abandon'
             ]},
         ],
