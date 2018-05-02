@@ -10,7 +10,8 @@
     ],
     "main": "lib/behavior.js",
     "files": [
-        "lib"
+        "lib",
+        "README.md"
     ],
     "scripts": {
         "start": "node test.js",
