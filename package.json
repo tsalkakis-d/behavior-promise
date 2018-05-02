@@ -9,10 +9,6 @@
         "trees"
     ],
     "main": "lib/behavior.js",
-    "files": [
-        "lib",
-        "README.md"
-    ],
     "scripts": {
         "start": "node test.js",
         "test": "echo \"Error: no test specified\" && exit 1"
