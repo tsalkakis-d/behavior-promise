@@ -48,19 +48,19 @@ $ npm install --save behavior-promise
 		- **Action**: Node is actually an external or internal Javascript function that:
 			-  Checks for a condition or performs a (probably time consuming) operation.
 			-  Returns a Success or a Failure result
-			-  May be called and run as a:
+			-  May be executed as a:
 				- **Promise** object, which succeeds when it is fulfilled and fails when it is rejected
 				- **Callback** function(error,result), which succeeds when it does not return an error and fails otherwise
-				- **Boolean** function, which succeeds when it returns true and fails otherwise
-				- **Plain** function, which succeeds when it finishes without an exception and fails otherwise
+				- **Boolean** function(), which succeeds when it returns true and fails otherwise
+				- **Plain** function(), which succeeds when it finishes without an exception and fails otherwise
 		- **Container**: Node contains one or more child nodes. More specific, a container may be:
-			- A **Sequence** node executes sequentially its child nodes until one of them fails
-			- A **Selector** node executes sequentially its child nodes until one of them succeeds
-            - A **Parallel** node executes all of its child nodes in parallel, until max failures of max successes occur
+			- A **Sequence** node, which executes sequentially its child nodes until one of them fails
+			- A **Selector** node, which executes sequentially its child nodes until one of them succeeds
+            - A **Parallel** node, which executes all of its child nodes in parallel, until max failures of max successes occur
 		- **Decorator**: Node that contains a single child node and shapes its result. More specific, a decorator may be:
-			- An **Inverter** node executes its child node and then reverses the success/failure result
-			- A **Success** node executes its child node then returns always Success
-			- A **Failure** node executes its child node and then returns always Failure
+			- An **Inverter** node, which executes its child node and then reverses the success/failure result
+			- A **Success** node, which executes its child node then returns always Success
+			- A **Failure** node, which executes its child node and then returns always Failure
 
 
 ## Examples
@@ -94,28 +94,39 @@ Example 2. An example of a game AI attempting to enter a room:
 var behavior = require('behavior-promise');
 var tree = behavior.create({
     root: {
-    	sel: [ // Try various ways to enter the door
-            {seq:['door.isOpen','room.moveInto']}, // If door is open, enter
-            {seq:[ // If door is closed, try to open/unlock/kick the door
-                'door.moveTo', // Move to the door
-                {sel:[	// Unlock or kick the door, whatever suceeds
-                    {seq:['door.isLocked','door.unlock']}, // Attempt to unlock
-                    {seq:['door.kick','door.isOpen']} // Attempt to kick
+        seq: [
+            // Read initial conditions
+            'readInput',
+            // Either enter or abandon
+            {sel: [
+                // Try various method to open the door
+                {seq: [
+                    // One method should work in order to be able to enter the room
+                    {sel: [
+                        'door.isOpen', // Check if door is already open
+                        {seq:['door.open', 'door.isOpen']}, // If failed, try to open
+                        {seq: ['door.unlock', 'door.open', 'door.isOpen']}, // If failed, try to unlock, then open
+                        {seq: ['door.kick', 'door.isOpen']} // If failed, try to kick
+                    ]},
+                    // Pass the door
+                    'room.moveInto'	
                 ]},
-                'room.moveInto'	// Move into the room if an action succeeded
-            ]}
-        ]
+                'room.abandon'
+            ]},
+        ],
     },
     actions: {
+        readInput: function () {/*..*/},
         door: {
             isOpen: function(){/*...*/},
             isLocked: function(){/*...*/},
-            moveTo: function(){/*...*/},
-            kick: function(){/*...*/},
+            open: function(){/*...*/},
             unlock: function(){/*...*/},
+            kick: function(){/*...*/}
         },
         room: {
         	moveInto: function(){/*...*/},
+        	abandon: function(){/*...*/}
         },
     }
 });
@@ -143,23 +154,16 @@ var behavior = require('behavior-promise');
 // specific names
 
 // function to create and return a tree branch with the following functionality:
-//      If output of node <if> satisfies node <is> as input, 
-//      then run node <then>, else run node <else>
-function ifNode(nodes) {
-    return {sel:[{seq:[nodes.if, nodes.is, nodes.then]}, nodes.else]};
-}
+//      If output of node <expr> satisfies node <equals> as input, 
+//      then run node <thenDo>, else run node <elseDo>
+const ifNode = ([expr, equals, thenDo, elseDo]) => ({sel:[{seq:[expr, equals, thenDo]}, elseDo]})
 
-var _allOrNone = ifNode({if:'get.c', is:'is.zero', 
-    then:'calculate.allSolutions', else:'calculate.noSolution'});
-var _firstOrder = ifNode({if:'get.b', is:'is.zero', 
-    then:_allOrNone, else:'calculate.firstOrder'});
-var _doubleOrComplex = ifNode({if:'get.discriminant', is:'is.zero', 
-    then:'calculate.doubleRoot', else:'calculate.complexRoots'});
-var _realDoubleOrComplex = ifNode({if:'get.discriminant', is:'is.positive', 
-    then:'calculate.realRoots', else:_doubleOrComplex});
-var _secondOrder = {seq:['calculate.discriminant', _realDoubleOrComplex]};
-var _solve = ifNode({if:'get.a', is:'is.zero', 
-    then:_firstOrder, else:_secondOrder});
+let _allOrNone = ifNode(['get.c', 'is.zero', 'calculate.allSolutions', 'calculate.noSolution'])
+let _firstOrder = ifNode(['get.b', 'is.zero', _allOrNone, 'calculate.firstOrder'])
+let _doubleOrComplex = ifNode(['get.discriminant', 'is.zero', 'calculate.doubleRoot', 'calculate.complexRoots'])
+let _realDoubleOrComplex = ifNode(['get.discriminant', 'is.positive', 'calculate.realRoots', _doubleOrComplex])
+let _secondOrder = {seq:['calculate.discriminant', _realDoubleOrComplex]}
+let _solve = ifNode(['get.a', 'is.zero', _firstOrder, _secondOrder])
 
 // Build the tree
 
@@ -177,8 +181,9 @@ var quadratic = behavior.create({
             out:    { roots:[], description: ''}   
         },
         seq: [ // Main sequence
-            'method.readInputs',        
-            _solve, 
+            'method.readInputs',
+            'method.displayInputs',
+            _solve,
             'method.displayResults'
         ]
     },
@@ -196,11 +201,15 @@ var quadratic = behavior.create({
                 console.log('Solving for a=',this.in.a,
                     ', b=',this.in.b,', c=',this.in.c);
             },
+            displayInputs: function(args) {
+                console.log(`a=${this.in.a}, b=${this.in.b}, c=${this.in.c}`)
+            },
             displayResults: function() {
-                console.log(this.out.description);
-                if (this.out.roots.length>0)
-                    console.log(this.out.roots.join(', '));
-                console.log();
+                let s = this.out.description
+                if (this.out.roots.length > 0)
+                    s = `${s} (${this.out.roots.join(', ')})`
+                console.log(s)
+                console.log()
             },
         },
         
@@ -222,7 +231,7 @@ var quadratic = behavior.create({
         calculate: {
             discriminant: function() {
                 this.med.d = this.in.b*this.in.b-4*this.in.a*this.in.c;
-                console.log('Discriminant = ',this.med.d);
+                // console.log('Discriminant = ',this.med.d);
             },
             firstOrder: function() {
                 this.out.description = 'First order solution';
@@ -256,18 +265,21 @@ var quadratic = behavior.create({
     }
 });
 
+let solveFor = (coefficients) => () => tree.run(coefficients)
+
 // Run
-quadratic.run({a:1,b:0,c:-1})               // Real roots
-.then(function(){ return quadratic.run({a:2,b:4,c:-3});})   // Real roots
-.then(function(){ return quadratic.run({a:1,b:-4,c:4});})   // Double root
-.then(function(){ return quadratic.run({a:5,b:2,c:7});})    // Complex roots
-.then(function(){ return quadratic.run({a:0,b:1,c:-4});})   // 1st order
-.then(function(){ return quadratic.run({a:0,b:0,c:0});})    // All solutions
-.then(function(){ return quadratic.run({a:0,b:0,c:4});})    // No solution
+tree.run({a: 1, b: 0, c: -1})        // Real roots
+.then(solveFor({a: 2, b: 4, c: -6})) // Real roots
+.then(solveFor({a: 1, b: -4, c: 4})) // Double root
+.then(solveFor({a: 5, b: 2, c: 2}))  // Complex roots
+.then(solveFor({a: 0, b: 1, c: -4})) // 1st order
+.then(solveFor({a: 0, b: 0, c: 0}))  // All solutions
+.then(solveFor({a: 0, b: 0, c: 4}))  // No solution
 .catch(function(err){
     console.log('ERROR:');
     console.log(err);
 });
+
 ```
 
 
@@ -319,12 +331,12 @@ quadratic.run({a:1,b:0,c:-1})               // Real roots
         - On **Success**:
             The promise will be fulfilled and will return the output value of the last node executed
         - On **Failure**:
-            The promise will be rejected and will return as an error the output value of the last node executed
+            The promise will be rejected and will return -as an error- the output value of the last node executed
 #### .error
 - ##### Description
-    - Property to indicate that an error occured during tree creation:
-        - If an error occured during tree creation, property is set to a short string describing the error
-        - If no error occured, property is set to null
+    - Property to indicate that an error occurred during tree creation:
+        - If an error occurred during tree creation, property is set to a short string describing the error
+        - If no error occurred, property is set to null
 
 ### Node object
 - ##### Description
@@ -336,8 +348,8 @@ quadratic.run({a:1,b:0,c:-1})               // Real roots
         If no type is given and there is no type specific property but there is a `nodes` property, then node type is `seq`.<br>
         - **.scope** (Optional):<br>
         A scope object, containing a set of local variables as properties.<br> 
-        Variables are accessible from actions of this node and its child nodes.<br>
-        If scope has a property with name 'var', then an action cann access the property using this.var<br>
+        Variables are accessible from actions of this node and of its child nodes.<br>
+        If scope has a property with name 'var', then an action can access the property using this.var<br>
         An action can access the variables of its scope and of all its parent nodes scopes as if they were defined in one large scope.<br>
         In order to avoid confusion, it is considered an error to have a property with the same name in a node scope and in any of its children nodes scope.<br>
         - **.title** (Optional):<br>
